@@ -197,19 +197,26 @@ export async function generateAnswer(question: string, context: string): Promise
   }
 }
 
-/** 같은 header_path가 여러 청크로 검색된 경우 가장 높은 유사도 하나만 남긴다. */
+/**
+ * 같은 header_path의 청크들을 출처 하나로 묶는다.
+ * 유사도는 최고값을 쓰고, 원문은 유사도 내림차순으로 이어붙여
+ * 배지 클릭 시 해당 출처의 검색된 내용 전체를 볼 수 있게 한다.
+ */
 function toSources(documents: MatchedDocument[]): Source[] {
-  const byPath = new Map<string, Source>();
+  const byPath = new Map<string, MatchedDocument[]>();
   for (const doc of documents) {
-    const existing = byPath.get(doc.header_path);
-    if (!existing || doc.similarity > existing.similarity) {
-      byPath.set(doc.header_path, {
-        header_path: doc.header_path,
-        similarity: doc.similarity,
-      });
-    }
+    const group = byPath.get(doc.header_path);
+    if (group) group.push(doc);
+    else byPath.set(doc.header_path, [doc]);
   }
-  return Array.from(byPath.values());
+  return Array.from(byPath.entries()).map(([header_path, docs]) => {
+    const sorted = [...docs].sort((a, b) => b.similarity - a.similarity);
+    return {
+      header_path,
+      similarity: sorted[0].similarity,
+      content: sorted.map((doc) => doc.content).join("\n\n"),
+    };
+  });
 }
 
 /** 전체 RAG 파이프라인: 재작성 → 임베딩 → 검색 → 컨텍스트 구성 → 답변 생성 */

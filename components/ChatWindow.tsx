@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import MessageBubble, { ChatMessage } from "@/components/MessageBubble";
 import TypingIndicator from "@/components/TypingIndicator";
-import type { ChatSuccessResponse } from "@/lib/types";
+import type { ChatSuccessResponse, Source } from "@/lib/types";
 
 /** 서버 처리(재시도 포함)보다 여유 있게 잡은 클라이언트 대기 상한 */
 const CLIENT_TIMEOUT_MS = 60_000;
@@ -112,6 +112,20 @@ export default function ChatWindow() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     void sendQuestion(input);
+  }
+
+  /** 출처 배지 클릭 시 해당 교재 원문을 대화에 추가한다 (서버 호출 없음) */
+  function showSource(source: Source) {
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: createId(),
+        role: "assistant",
+        content: source.content,
+        variant: "source",
+        sourceLabel: source.header_path,
+      },
+    ]);
   }
 
   /** 진행 중인 요청을 중단하고 대화를 처음 상태로 되돌린다 */
@@ -233,7 +247,11 @@ export default function ChatWindow() {
         ) : (
           <div className="flex flex-col gap-4">
             {messages.map((message) => (
-              <MessageBubble key={message.id} message={message} />
+              <MessageBubble
+                key={message.id}
+                message={message}
+                onSourceClick={showSource}
+              />
             ))}
             {isLoading && <TypingIndicator />}
             <div ref={bottomRef} />

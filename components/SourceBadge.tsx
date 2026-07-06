@@ -1,12 +1,20 @@
 import type { Source } from "@/lib/types";
 
-export default function SourceBadge({ source }: { source: Source }) {
+export default function SourceBadge({
+  source,
+  onClick,
+}: {
+  source: Source;
+  onClick?: (source: Source) => void;
+}) {
   const similarityPercent = Math.round(source.similarity * 100);
 
   return (
-    <span
-      title={source.header_path}
-      className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs text-blue-800"
+    <button
+      type="button"
+      onClick={() => onClick?.(source)}
+      title={`${source.header_path} — 클릭하면 교재 원문을 보여드립니다`}
+      className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs text-blue-800 transition hover:border-blue-300 hover:bg-blue-100 hover:shadow-sm"
     >
       <svg
         aria-hidden="true"
@@ -23,6 +31,6 @@ export default function SourceBadge({ source }: { source: Source }) {
       </svg>
       <span className="truncate">{source.header_path}</span>
       <span className="shrink-0 text-blue-400">{similarityPercent}%</span>
-    </span>
+    </button>
   );
 }
