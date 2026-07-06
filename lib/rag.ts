@@ -100,6 +100,14 @@ export async function embedQuery(text: string): Promise<number[]> {
         input: text,
       });
 
+      // OpenRouter는 프로바이더 오류를 HTTP 200 + { error: ... } 형태로 반환할 수 있어
+      // data 배열이 없으면 실제 응답 본문을 로그에 남겨 원인을 추적한다.
+      if (!Array.isArray(response?.data)) {
+        throw new Error(
+          `임베딩 응답에 data 배열 없음: ${JSON.stringify(response).slice(0, 500)}`
+        );
+      }
+
       const embedding = response.data[0]?.embedding;
       if (!embedding || embedding.length !== EMBEDDING_DIMENSIONS) {
         throw new Error(
