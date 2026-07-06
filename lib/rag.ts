@@ -98,6 +98,9 @@ export async function embedQuery(text: string): Promise<number[]> {
       const response = await getOpenRouterClient().embeddings.create({
         model: EMBEDDING_MODEL,
         input: text,
+        // OpenAI SDK는 미지정 시 base64를 기본값으로 보내는데,
+        // OpenRouter의 Nvidia 임베딩은 base64를 지원하지 않아 400을 반환한다.
+        encoding_format: "float",
       });
 
       // OpenRouter는 프로바이더 오류를 HTTP 200 + { error: ... } 형태로 반환할 수 있어
