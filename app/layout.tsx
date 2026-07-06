@@ -12,7 +12,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko">
-      <body className="bg-slate-100 text-slate-900 antialiased">{children}</body>
+      <body className="bg-gradient-to-b from-slate-100 via-slate-50 to-blue-100/70 font-sans text-slate-900 antialiased">
+        {children}
+      </body>
     </html>
   );
 }

@@ -1,3 +1,5 @@
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import SourceBadge from "@/components/SourceBadge";
 import type { Source } from "@/lib/types";
 
@@ -21,7 +23,7 @@ export default function MessageBubble({ message }: { message: ChatMessage }) {
   if (message.role === "user") {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md bg-blue-600 px-4 py-2.5 text-sm text-white shadow-sm sm:max-w-[75%] sm:text-base">
+        <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md bg-gradient-to-br from-blue-600 to-indigo-600 px-4 py-2.5 text-sm text-white shadow-md shadow-blue-600/20 sm:max-w-[75%] sm:text-base">
           {message.content}
         </div>
       </div>
@@ -33,9 +35,19 @@ export default function MessageBubble({ message }: { message: ChatMessage }) {
   return (
     <div className="flex flex-col items-start gap-2">
       <div
-        className={`max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-bl-md border px-4 py-2.5 text-sm shadow-sm sm:max-w-[75%] sm:text-base ${assistantBubbleStyles[variant]}`}
+        className={`max-w-[85%] rounded-2xl rounded-bl-md border px-4 py-3 text-sm shadow-sm sm:max-w-[75%] sm:text-base ${assistantBubbleStyles[variant]}`}
       >
-        {message.content}
+        {variant === "normal" ? (
+          <div className="prose prose-sm max-w-none break-words prose-headings:mb-2 prose-headings:mt-3 prose-headings:text-slate-800 prose-p:my-1.5 prose-p:leading-relaxed prose-strong:font-semibold prose-strong:text-slate-900 prose-ol:my-1.5 prose-ol:pl-5 prose-ul:my-1.5 prose-ul:pl-5 prose-li:my-0.5 sm:prose-base [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_table]:block [&_table]:overflow-x-auto">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {message.content}
+            </ReactMarkdown>
+          </div>
+        ) : (
+          <span className="whitespace-pre-wrap break-words">
+            {message.content}
+          </span>
+        )}
       </div>
       {message.sources && message.sources.length > 0 && (
         <div className="flex max-w-[85%] flex-wrap gap-1.5 sm:max-w-[75%]">
